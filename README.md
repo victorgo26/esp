@@ -15,7 +15,7 @@ local corForaDoCampo = Color3.new(0, 0, 1) -- Azul por padrão
 local espAtivo = false
 local painelVisivel = false
 
---// Criar o painel (simplificado)
+--// Criar o painel
 local espPanel = Instance.new("ScreenGui")
 espPanel.Name = "ESPanel"
 espPanel.Parent = GuiService:WaitForChild("CoreGui") -- CoreGui para interfaces que persistem
@@ -26,7 +26,34 @@ ativarBotao.Position = UDim2.new(0.1, 0, 0.1, 0)
 ativarBotao.Text = "Ativar ESP"
 ativarBotao.Parent = espPanel
 
---// (Adicionar aqui elementos para selecionar cores)
+--// Frame para as opções de cores
+local coresFrame = Instance.new("Frame")
+coresFrame.Size = UDim2.new(0.4, 0, 0.2, 0)
+coresFrame.Position = UDim2.new(0.1, 0, 0.25, 0)
+coresFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+coresFrame.Parent = espPanel
+
+local textoCorDentro = Instance.new("TextLabel")
+textoCorDentro.Size = UDim2.new(0.45, 0, 0.3, 0)
+textoCorDentro.Position = UDim2.new(0.05, 0, 0.1, 0)
+textoCorDentro.Text = "Cor Dentro do Campo:"
+textoCorDentro.TextColor3 = Color3.new(1, 1, 1)
+textoCorDentro.BackgroundTransparency = 1
+textoCorDentro.Parent = coresFrame
+
+--// (Aqui você adicionaria elementos interativos para selecionar a cor de 'dentroDoCampo')
+--// Por exemplo, botões ou seletores de cor personalizados
+
+local textoCorFora = Instance.new("TextLabel")
+textoCorFora.Size = UDim2.new(0.45, 0, 0.3, 0)
+textoCorFora.Position = UDim2.new(0.05, 0, 0.6, 0)
+textoCorFora.Text = "Cor Fora do Campo:"
+textoCorFora.TextColor3 = Color3.new(1, 1, 1)
+textoCorFora.BackgroundTransparency = 1
+textoCorFora.Parent = coresFrame
+
+--// (Aqui você adicionaria elementos interativos para selecionar a cor de 'foraDoCampo')
+--// Por exemplo, botões ou seletores de cor personalizados
 
 espPanel.Visible = false -- Inicialmente invisível
 
