@@ -10,15 +10,15 @@ local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
 --// Variáveis para as cores customizáveis
-local corDentroDoCampo = Color3.new(1, 0, 0) -- Vermelho por padrão
-local corForaDoCampo = Color3.new(0, 0, 1) -- Azul por padrão
+local corForaDoCampo = Color3.new(1, 0, 0) -- Vermelho
+local corDentroDoCampo = Color3.new(1, 1, 0) -- Amarelo
 local espAtivo = false
 local painelVisivel = false
 
 --// Criar o painel
 local espPanel = Instance.new("ScreenGui")
 espPanel.Name = "ESPanel"
-espPanel.Parent = GuiService:WaitForChild("CoreGui") -- CoreGui para interfaces que persistem
+espPanel.Parent = GuiService:WaitForChild("CoreGui")
 
 local ativarBotao = Instance.new("TextButton")
 ativarBotao.Size = UDim2.new(0.2, 0, 0.1, 0)
@@ -26,34 +26,8 @@ ativarBotao.Position = UDim2.new(0.1, 0, 0.1, 0)
 ativarBotao.Text = "Ativar ESP"
 ativarBotao.Parent = espPanel
 
---// Frame para as opções de cores
-local coresFrame = Instance.new("Frame")
-coresFrame.Size = UDim2.new(0.4, 0, 0.2, 0)
-coresFrame.Position = UDim2.new(0.1, 0, 0.25, 0)
-coresFrame.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
-coresFrame.Parent = espPanel
-
-local textoCorDentro = Instance.new("TextLabel")
-textoCorDentro.Size = UDim2.new(0.45, 0, 0.3, 0)
-textoCorDentro.Position = UDim2.new(0.05, 0, 0.1, 0)
-textoCorDentro.Text = "Cor Dentro do Campo:"
-textoCorDentro.TextColor3 = Color3.new(1, 1, 1)
-textoCorDentro.BackgroundTransparency = 1
-textoCorDentro.Parent = coresFrame
-
---// (Aqui você adicionaria elementos interativos para selecionar a cor de 'dentroDoCampo')
---// Por exemplo, botões ou seletores de cor personalizados
-
-local textoCorFora = Instance.new("TextLabel")
-textoCorFora.Size = UDim2.new(0.45, 0, 0.3, 0)
-textoCorFora.Position = UDim2.new(0.05, 0, 0.6, 0)
-textoCorFora.Text = "Cor Fora do Campo:"
-textoCorFora.TextColor3 = Color3.new(1, 1, 1)
-textoCorFora.BackgroundTransparency = 1
-textoCorFora.Parent = coresFrame
-
---// (Aqui você adicionaria elementos interativos para selecionar a cor de 'foraDoCampo')
---// Por exemplo, botões ou seletores de cor personalizados
+--// Frame para as opções de cores (removido por enquanto para simplificar)
+--// Se você quiser reativar a customização, precisará readicionar essa parte
 
 espPanel.Visible = false -- Inicialmente invisível
 
@@ -62,34 +36,40 @@ local function estaNoCampoDeVisao(pontoMundo)
     local direcaoParaPonto = (pontoMundo - Camera.CFrame.Position).Unit
     local direcaoDaCamera = Camera.CFrame.LookVector
     local angulo = acos(direcaoParaPonto:Dot(direcaoDaCamera))
-    --// Ajuste este valor para controlar a largura do campo de visão
     local limiteAngulo = math.rad(60)
     return angulo < limiteAngulo
 end
 
---// Função para mudar a cor de um personagem
-local function mudarCorPersonagem(personagem, dentroDoCampo)
-    if personagem and personagem:FindFirstChild("HumanoidRootPart") then
-        for _, parte in ipairs(personagem:GetDescendants()) do
-            if parte:IsA("BasePart") and parte.Name ~= "HumanoidRootPart" then
-                parte.Color = dentroDoCampo and corDentroDoCampo or corForaDoCampo
-            end
-        end
+--// Função para mudar a cor de uma parte do corpo
+local function mudarCorParteCorpo(parte, dentroDoCampo)
+    if parte:IsA("BasePart") and parte.Name ~= "HumanoidRootPart" then
+        parte.Color = dentroDoCampo and corDentroDoCampo or corForaDoCampo
     end
 end
 
---// Loop para atualizar as cores dos personagens
+--// Loop para atualizar as cores das partes do corpo dos personagens
 game:GetService("RunService").RenderStepped:Connect(function()
     if espAtivo then
         for _, jogador in ipairs(Players:GetPlayers()) do
-            if jogador ~= LocalPlayer and jogador.Character then
+            if jogador ~= LocalPlayer and jogador.Character and jogador.Character:FindFirstChild("Humanoid") then
                 local personagem = jogador.Character
+                local humanoid = personagem:FindFirstChild("Humanoid")
                 local pontoDeReferencia = personagem:FindFirstChild("HumanoidRootPart") and personagem.HumanoidRootPart.Position
                 if pontoDeReferencia then
                     local visivel = estaNoCampoDeVisao(pontoDeReferencia)
-                    mudarCorPersonagem(personagem, visivel)
+                    for _, parte in ipairs(personagem:GetChildren()) do
+                        --// Verifica se a parte é uma parte do corpo padrão
+                        if humanoid:GetBodyPartRbxType(parte) ~= Enum.BodyPartRbxType.Other then
+                            mudarCorParteCorpo(parte, visivel)
+                        end
+                    end
                 else
-                    mudarCorPersonagem(personagem, false) -- Se não houver HumanoidRootPart, considera fora
+                    --// Se não houver HumanoidRootPart, colore todas as partes do corpo de vermelho
+                    for _, parte in ipairs(personagem:GetChildren()) do
+                        if humanoid:GetBodyPartRbxType(parte) ~= Enum.BodyPartRbxType.Other then
+                            mudarCorParteCorpo(parte, false)
+                        end
+                    end
                 end
             end
         end
@@ -103,9 +83,14 @@ ativarBotao.MouseButton1Click:Connect(function()
     --// Resetar as cores quando desativa
     if not espAtivo then
         for _, jogador in ipairs(Players:GetPlayers()) do
-            if jogador ~= LocalPlayer and jogador.Character then
-                --// Aqui você precisaria restaurar a cor original do personagem
-                --// Isso é mais complexo e exigiria armazenar a cor original
+            if jogador ~= LocalPlayer and jogador.Character and jogador.Character:FindFirstChild("Humanoid") then
+                local humanoid = jogador.Character:FindFirstChild("Humanoid")
+                for _, parte in ipairs(jogador.Character:GetChildren()) do
+                    if humanoid:GetBodyPartRbxType(parte) ~= Enum.BodyPartRbxType.Other then
+                        --// Aqui você precisaria restaurar a cor original da parte
+                        --// Isso é mais complexo e exigiria armazenar a cor original
+                    end
+                end
             end
         end
     end
@@ -113,7 +98,7 @@ end)
 
 --// Detectar a tecla F4 para mostrar/esconder o painel
 UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.F4 then
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.F5 then
         painelVisivel = not painelVisivel
         espPanel.Visible = painelVisivel
     end
