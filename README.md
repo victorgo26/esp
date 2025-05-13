@@ -58,7 +58,7 @@ selecionarAlvo.Parent = espPanel
 
 espPanel.Visible = false
 
---// Funções (mantidas e modificadas)
+--// Funções
 local function estaNoCampoDeVisao(pontoMundo)
     local direcaoParaPonto = (pontoMundo - Camera.CFrame.Position).Unit
     local direcaoDaCamera = Camera.CFrame.LookVector
@@ -98,7 +98,7 @@ local function aimAtTarget(targetPart)
     end
 end
 
---// Loop de renderização (modificado para aimbot)
+--// Loop de renderização
 RunService.RenderStepped:Connect(function()
     if espAtivo or aimbotAtivo then
         local closestTarget = nil
