@@ -110,29 +110,16 @@ local function createConfigPanel()
     visibleColorPicker.Parent = panel
     visibleColorPicker.ColorChanged:Connect(function(newColor)
         visibleColor = newColor
-        for _, playerTable in pairs(playerBoxes) do
-            for _, box in pairs(playerTable) do
-                if box.BackgroundColor3 == hiddenColor then -- Evita mudar cores de caixas não visíveis
-                    continue
-                end
-                local character = Players:GetPlayerFromCharacter(box.Parent.Parent)
-                if character and character.Character then
-                    local partName = nil
-                    for name, boxInstance in pairs(playerBoxes[character]) do
-                        if boxInstance == box then
-                            partName = name
-                            break
-                        end
-                    end
-                    if partName then
-                        local part = character.Character:FindFirstChild(partName)
-                        if part then
-                            local raycastParams = RaycastParams.new()
-                            raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-                            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                            local raycastResult = Workspace:Raycast(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000, raycastParams)
-                            updateBoxColor(box, raycastResult and raycastResult.Instance == part)
-                        end
+        for player, playerTable in pairs(playerBoxes) do
+            if player.Character then
+                for partName, box in pairs(playerTable) do
+                    local part = player.Character:FindFirstChild(partName)
+                    if part then
+                        local raycastParams = RaycastParams.new()
+                        raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+                        raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                        local raycastResult = Workspace:Raycast(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000, raycastParams)
+                        updateBoxColor(box, raycastResult and raycastResult.Instance == part)
                     end
                 end
             end
@@ -159,29 +146,16 @@ local function createConfigPanel()
     hiddenColorPicker.Parent = panel
     hiddenColorPicker.ColorChanged:Connect(function(newColor)
         hiddenColor = newColor
-        for _, playerTable in pairs(playerBoxes) do
-            for _, box in pairs(playerTable) do
-                if box.BackgroundColor3 == visibleColor then -- Evita mudar cores de caixas visíveis
-                    continue
-                end
-                local character = Players:GetPlayerFromCharacter(box.Parent.Parent)
-                if character and character.Character then
-                    local partName = nil
-                    for name, boxInstance in pairs(playerBoxes[character]) do
-                        if boxInstance == box then
-                            partName = name
-                            break
-                        end
-                    end
-                    if partName then
-                        local part = character.Character:FindFirstChild(partName)
-                        if part then
-                            local raycastParams = RaycastParams.new()
-                            raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
-                            raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
-                            local raycastResult = Workspace:Raycast(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000, raycastParams)
-                            updateBoxColor(box, raycastResult and raycastResult.Instance == part)
-                        end
+        for player, playerTable in pairs(playerBoxes) do
+            if player.Character then
+                for partName, box in pairs(playerTable) do
+                    local part = player.Character:FindFirstChild(partName)
+                    if part then
+                        local raycastParams = RaycastParams.new()
+                        raycastParams.FilterDescendantsInstances = {LocalPlayer.Character}
+                        raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+                        local raycastResult = Workspace:Raycast(Camera.CFrame.Position, (part.Position - Camera.CFrame.Position).Unit * 1000, raycastParams)
+                        updateBoxColor(box, raycastResult and raycastResult.Instance == part)
                     end
                 end
             end
